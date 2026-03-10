@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Striver's A2Z DSA Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #080b0f;
+    --surface: #0d1117;
+    --surface2: #161b22;
+    --surface3: #1c2128;
+    --border: #21262d;
+    --border2: #30363d;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --text3: #484f58;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --yellow: #d29922;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --orange: #ffa657;
+    --teal: #39d353;
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* ── TOPBAR ── */
+  #topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(8,11,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 54px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, #1f6feb, #388bfd);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .logo-text { font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+  .logo-sub { font-size: 11px; color: var(--text3); font-weight: 500; font-family: 'JetBrains Mono', monospace; }
+  #back-btn {
+    display: none; align-items: center; gap: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text2); padding: 5px 12px; border-radius: var(--radius);
+    cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600;
+    transition: all 0.15s;
+  }
+  #back-btn:hover { background: var(--surface3); color: var(--text); border-color: var(--border2); }
+  .header-progress {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 6px 14px;
+  }
+  .prog-bar-wrap { width: 100px; background: var(--surface3); border-radius: 999px; height: 5px; overflow: hidden; }
+  .prog-bar-fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, #1f6feb, #388bfd, #58a6ff);
+    transition: width 0.5s ease;
+  }
+  .prog-label { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); font-weight: 600; }
+  .prog-count { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); }
+
+  /* ── MAIN WRAP ── */
+  #main { max-width: 1060px; margin: 0 auto; padding: 20px 16px 100px; }
+
+  /* ── FILTER BAR ── */
+  #filter-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  }
+  .search-wrap { position: relative; flex: 1; min-width: 160px; }
+  .search-wrap::before {
+    content: '⌕'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    color: var(--text3); font-size: 16px; pointer-events: none;
+  }
+  #search-input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 7px 10px 7px 30px;
+    color: var(--text); font-size: 13px; font-family: inherit; outline: none;
+    transition: border-color 0.15s;
+  }
+  #search-input:focus { border-color: var(--accent); }
+  #search-input::placeholder { color: var(--text3); }
+  .filter-group { display: flex; gap: 5px; flex-wrap: wrap; }
+  .fbtn {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text3); padding: 5px 11px; border-radius: 6px;
+    cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 600;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .fbtn:hover { border-color: var(--border2); color: var(--text2); }
+  .fbtn.active-easy    { background: #0d2f1a; border-color: #238636; color: #3fb950; }
+  .fbtn.active-medium  { background: #2d1f00; border-color: #9e6a03; color: #e3b341; }
+  .fbtn.active-hard    { background: #3d0000; border-color: #da3633; color: #f85149; }
+  .fbtn.active-pattern { background: #1e0d3d; border-color: #6e40c9; color: #bc8cff; }
+  .fbtn.active-theory  { background: #001c3d; border-color: #1f6feb; color: #58a6ff; }
+  .fbtn.active-all     { background: #0c2444; border-color: #1f6feb; color: #58a6ff; }
+  .fbtn.active-lc      { background: #2d1a00; border-color: #d68910; color: #ffa657; }
+  .fbtn.active-gfg     { background: #0d2f0d; border-color: #238636; color: #3fb950; }
+  .fbtn.active-cn      { background: #1a1a2e; border-color: #6e40c9; color: #bc8cff; }
+  .fbtn.active-plat-all { background: #0c2444; border-color: #1f6feb; color: #58a6ff; }
+  .fbtn.active-undone  { background: #2d1800; border-color: #9e6a03; color: #e3b341; }
+  #reset-btn { display: none; }
+  #reset-btn.visible { display: block; }
+  #reset-btn.fbtn { color: var(--red); }
+  #reset-btn.fbtn:hover { background: #3d0000; border-color: var(--red); }
+
+  /* ── STATS ROW ── */
+  #stats-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 10px; margin-bottom: 16px;
+  }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px 14px;
+  }
+  .stat-num { font-size: 24px; font-weight: 800; line-height: 1; margin-bottom: 3px; font-family: 'JetBrains Mono', monospace; }
+  .stat-lbl { font-size: 11px; color: var(--text3); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* ── STEP GRID ── */
+  #step-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(275px, 1fr)); gap: 10px; }
+  .step-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 15px;
+    cursor: pointer; transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
+    position: relative; overflow: hidden;
+  }
+  .step-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--step-color, #58a6ff);
+  }
+  .step-card:hover { transform: translateY(-3px); border-color: var(--border2); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+  .step-card.complete { box-shadow: 0 0 0 1px color-mix(in srgb, var(--step-color) 30%, transparent); }
+  .sc-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+  .sc-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+    background: color-mix(in srgb, var(--step-color) 15%, transparent);
+  }
+  .sc-meta { flex: 1; padding-left: 10px; }
+  .sc-stepnum { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 2px; color: var(--step-color); font-family: 'JetBrains Mono', monospace; }
+  .sc-title { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.35; }
+  .sc-trophy { font-size: 18px; }
+  .sc-prog-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+  .sc-prog-nums { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+  .sc-pct { font-size: 12px; font-weight: 700; color: var(--step-color); font-family: 'JetBrains Mono', monospace; }
+  .sc-bar { background: var(--surface3); border-radius: 999px; height: 4px; overflow: hidden; margin-bottom: 10px; }
+  .sc-bar-fill { height: 100%; border-radius: 999px; background: var(--step-color); transition: width 0.4s ease; }
+  .sc-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+  .sc-tag {
+    font-size: 10px; color: var(--text3); background: var(--surface3);
+    padding: 2px 7px; border-radius: 4px; border: 1px solid var(--border);
+    max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  /* ── STEP DETAIL ── */
+  #step-detail { display: none; }
+  .step-header {
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--step-color, #58a6ff);
+    border-radius: var(--radius); padding: 14px 18px;
+    display: flex; align-items: center; gap: 14px; margin-bottom: 14px;
+  }
+  .sh-icon { font-size: 28px; }
+  .sh-info { flex: 1; }
+  .sh-title { font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+  .sh-sub { display: flex; align-items: center; gap: 12px; }
+  .sh-count { font-size: 12px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+  .sh-bar-wrap { width: 130px; background: var(--surface3); border-radius: 999px; height: 5px; overflow: hidden; }
+  .sh-bar-fill { height: 100%; border-radius: 999px; transition: width 0.4s; }
+  .sh-pct { font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+  /* ── SECTION ── */
+  .section-block { margin-bottom: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; cursor: pointer; background: var(--surface2);
+    border-bottom: 1px solid transparent; user-select: none;
+    transition: background 0.12s;
+  }
+  .section-head:hover { background: var(--surface3); }
+  .section-head.open { border-bottom-color: var(--border); }
+  .sh-left { display: flex; align-items: center; gap: 8px; }
+  .sh-arrow { font-size: 10px; color: var(--text3); transition: transform 0.2s; width: 12px; text-align: center; }
+  .sh-arrow.open { transform: rotate(90deg); }
+  .sec-name { font-size: 13px; font-weight: 600; color: var(--text2); }
+  .sec-count-badge {
+    font-size: 10px; background: var(--surface3); border: 1px solid var(--border);
+    border-radius: 4px; padding: 1px 6px; color: var(--text3);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .sh-right { display: flex; align-items: center; gap: 8px; }
+  .sec-done-label { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--text3); }
+  .sec-done-label.all { color: var(--green); }
+  .sec-mini-bar { width: 55px; background: var(--surface3); border-radius: 999px; height: 3px; overflow: hidden; }
+  .sec-mini-fill { height: 100%; border-radius: 999px; transition: width 0.3s; }
+
+  /* ── QUESTION TABLE ── */
+  .q-table { width: 100%; border-collapse: collapse; }
+  .q-table th {
+    padding: 7px 10px; text-align: left; font-size: 10px; font-weight: 600;
+    color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase;
+    border-bottom: 1px solid var(--border); background: var(--surface);
+  }
+  .q-table th.center { text-align: center; }
+  .q-row { cursor: pointer; transition: background 0.1s; }
+  .q-row:hover td { background: rgba(255,255,255,0.025) !important; }
+  .q-row td {
+    padding: 9px 10px; border-bottom: 1px solid var(--border);
+    background: transparent; vertical-align: middle;
+  }
+  .q-row.done td { background: rgba(255,255,255,0.01); }
+  .q-num { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; text-align: center; width: 36px; }
+  .q-check { text-align: center; width: 38px; }
+  .q-check input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+  .q-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .q-row.done .q-name { color: var(--text3); text-decoration: line-through; }
+  .q-link {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; color: var(--accent);
+    text-decoration: none; padding: 2px 7px; border-radius: 4px;
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    transition: all 0.15s; white-space: nowrap; font-family: 'JetBrains Mono', monospace;
+  }
+  .q-link:hover { background: color-mix(in srgb, var(--accent) 18%, transparent); color: #fff; }
+  .q-link.gfg { color: var(--green); border-color: color-mix(in srgb, var(--green) 30%, transparent); background: color-mix(in srgb, var(--green) 8%, transparent); }
+  .q-link.gfg:hover { background: color-mix(in srgb, var(--green) 18%, transparent); }
+  .q-link.cn  { color: var(--purple); border-color: color-mix(in srgb, var(--purple) 30%, transparent); background: color-mix(in srgb, var(--purple) 8%, transparent); }
+  .q-link.cn:hover { background: color-mix(in srgb, var(--purple) 18%, transparent); }
+  .q-link.multi { color: var(--orange); border-color: color-mix(in srgb, var(--orange) 30%, transparent); background: color-mix(in srgb, var(--orange) 8%, transparent); }
+  .q-link.multi:hover { background: color-mix(in srgb, var(--orange) 18%, transparent); }
+  .diff-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace; white-space: nowrap;
+  }
+  .diff-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .diff-Easy    { background: #0d2f1a; color: #3fb950; border: 1px solid #238636; }
+  .diff-Easy .diff-dot    { background: #3fb950; }
+  .diff-Medium  { background: #2d1f00; color: #e3b341; border: 1px solid #9e6a03; }
+  .diff-Medium .diff-dot  { background: #e3b341; }
+  .diff-Hard    { background: #3d0000; color: #f85149; border: 1px solid #da3633; }
+  .diff-Hard .diff-dot    { background: #f85149; }
+  .diff-Pattern { background: #1e0d3d; color: #bc8cff; border: 1px solid #6e40c9; }
+  .diff-Pattern .diff-dot { background: #bc8cff; }
+  .diff-Theory  { background: #001c3d; color: #58a6ff; border: 1px solid #1f6feb; }
+  .diff-Theory .diff-dot  { background: #58a6ff; }
+
+  /* ── SEARCH RESULTS ── */
+  #search-results { display: none; }
+  #search-results.visible { display: block; }
+  .sr-header {
+    padding: 10px 14px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius) var(--radius) 0 0;
+    border-bottom: none; font-size: 13px; color: var(--text3);
+  }
+  .sr-header strong { color: var(--text); }
+  #sr-table-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-top: none; border-radius: 0 0 var(--radius) var(--radius); overflow: hidden;
+  }
+  .sr-empty { padding: 48px 0; text-align: center; color: var(--text3); font-size: 13px; }
+
+  /* ── BOTTOM PROGRESS ── */
+  #bottom-bar {
+    display: none; position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+    background: rgba(8,11,15,0.96); backdrop-filter: blur(16px);
+    border: 1px solid var(--border2); border-radius: 999px;
+    padding: 9px 22px; align-items: center; gap: 14px; z-index: 200;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  #bottom-bar.visible { display: flex; }
+  .bb-label { font-size: 11px; color: var(--text3); }
+  .bb-bar { width: 110px; background: var(--surface3); border-radius: 999px; height: 5px; overflow: hidden; }
+  .bb-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #1f6feb, #58a6ff, #39d353); transition: width 0.5s; }
+  .bb-frac { font-size: 12px; color: var(--text2); font-weight: 600; }
+  .bb-pct  { font-size: 14px; color: var(--accent); font-weight: 700; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    #stats-row { grid-template-columns: repeat(2,1fr); }
+    #step-grid { grid-template-columns: 1fr; }
+    .q-table th:nth-child(4), .q-table td:nth-child(4) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <button id="back-btn" onclick="showGrid()">← All Steps</button>
+    <div class="logo">
+      <div class="logo-icon">🎯</div>
+      <div>
+        <div class="logo-text" id="header-title">Striver's A2Z DSA</div>
+        <div class="logo-sub" id="header-sub">450+ questions · 17 steps</div>
+      </div>
+    </div>
+  </div>
+  <div class="header-progress">
+    <div class="prog-bar-wrap"><div class="prog-bar-fill" id="top-prog-fill" style="width:0%"></div></div>
+    <span class="prog-label" id="top-pct">0%</span>
+    <span class="prog-count" id="top-count">0/442</span>
+  </div>
+</div>
+
+<div id="main">
+
+  <!-- FILTER BAR -->
+  <div id="filter-bar">
+    <div class="search-wrap">
+      <input id="search-input" placeholder="Search any question…" oninput="handleSearch()" autocomplete="off"/>
+    </div>
+    <div class="filter-group" id="diff-filters">
+      <button class="fbtn active-all" data-diff="All"     onclick="setDiff(this,'All')">All</button>
+      <button class="fbtn" data-diff="Easy"     onclick="setDiff(this,'Easy')">Easy</button>
+      <button class="fbtn" data-diff="Medium"   onclick="setDiff(this,'Medium')">Medium</button>
+      <button class="fbtn" data-diff="Hard"     onclick="setDiff(this,'Hard')">Hard</button>
+      <button class="fbtn" data-diff="Pattern"  onclick="setDiff(this,'Pattern')">Pattern</button>
+    </div>
+    <div class="filter-group" id="plat-filters">
+      <button class="fbtn active-plat-all" data-plat="All"       onclick="setPlat(this,'All')">All</button>
+      <button class="fbtn" data-plat="LeetCode"  onclick="setPlat(this,'LeetCode')">LC</button>
+      <button class="fbtn" data-plat="GFG"        onclick="setPlat(this,'GFG')">GFG</button>
+      <button class="fbtn" data-plat="CN"         onclick="setPlat(this,'CN')">CN</button>
+    </div>
+    <button class="fbtn" id="undone-btn" onclick="toggleUndone()">📌 Undone</button>
+    <button class="fbtn" id="reset-btn" onclick="resetAll()">✕ Reset</button>
+  </div>
+
+  <!-- STATS ROW -->
+  <div id="stats-row">
+    <div class="stat-card">
+      <div class="stat-num" style="color:#58a6ff" id="s-solved">0</div>
+      <div class="stat-lbl">Solved</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color:#f85149" id="s-remain">442</div>
+      <div class="stat-lbl">Remaining</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color:#e3b341" id="s-total">442</div>
+      <div class="stat-lbl">Total</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color:#3fb950" id="s-steps">0/17</div>
+      <div class="stat-lbl">Steps Done</div>
+    </div>
+  </div>
+
+  <!-- STEP GRID -->
+  <div id="step-grid"></div>
+
+  <!-- STEP DETAIL -->
+  <div id="step-detail"></div>
+
+  <!-- SEARCH RESULTS -->
+  <div id="search-results">
+    <div class="sr-header" id="sr-header"></div>
+    <div id="sr-table-wrap"></div>
+  </div>
+
+</div>
+
+<!-- BOTTOM BAR -->
+<div id="bottom-bar">
+  <span class="bb-label">Progress</span>
+  <div class="bb-bar"><div class="bb-fill" id="bb-fill" style="width:0%"></div></div>
+  <span class="bb-frac" id="bb-frac">0/442</span>
+  <span class="bb-pct"  id="bb-pct">0%</span>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────
+const STEPS = [
+ {
+  step:1, title:"Learn the Basics", icon:"⚡", color:"#ffa657",
+  sections:[
+   {sub:"Things to Know in C++ / Java / Python", qs:[
+    {id:1, name:"User Input / Output", lc:"", gfg:"user-input-and-output", cn:""},
+    {id:2, name:"Data Types in Programming", lc:"", gfg:"data-types-in-c-with-examples", cn:""},
+    {id:3, name:"If-Else Statements", lc:"", gfg:"decision-making-c-c-else-else-ladder-nested", cn:""},
+    {id:4, name:"Switch Statement", lc:"", gfg:"switch-statement-cc", cn:""},
+    {id:5, name:"Arrays and Strings", lc:"", gfg:"arrays-in-java-javatpoint", cn:""},
+    {id:6, name:"For Loops and While Loops", lc:"", gfg:"loops-in-java", cn:""},
+    {id:7, name:"Functions – Pass by Value / Reference", lc:"", gfg:"functions-in-c", cn:""},
+    {id:8, name:"Time & Space Complexity Basics", lc:"", gfg:"analysis-of-algorithms-set-1-asymptotic-analysis", cn:""},
+   ]},
+   {sub:"Pattern Printing – Build Logical Thinking", qs:[
+    {id:9,  name:"Pattern 1: Rectangular Star Pattern", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/print-pattern_6581920"},
+    {id:10, name:"Pattern 2: Right-Angled Triangle", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6581959"},
+    {id:11, name:"Pattern 3: Right-Angled Number Pyramid", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6581968"},
+    {id:12, name:"Pattern 4: Right-Angled Number Pyramid II", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6581970"},
+    {id:13, name:"Pattern 5: Inverted Right Pyramid", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6581980"},
+    {id:14, name:"Pattern 6: Inverted Numbered Right Pyramid", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6581982"},
+    {id:15, name:"Pattern 7: Star Pyramid (Triangle)", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6581985"},
+    {id:16, name:"Pattern 8: Inverted Star Pyramid", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6581986"},
+    {id:17, name:"Pattern 9: Diamond Star Pattern", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6581988"},
+    {id:18, name:"Pattern 10: Half Diamond Star Pattern", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6581992"},
+    {id:19, name:"Pattern 11: Binary Triangle (0/1 alternating)", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6581994"},
+    {id:20, name:"Pattern 12: Number Crown Pattern", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6582000"},
+    {id:21, name:"Pattern 13: Increasing Number Triangle", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6582001"},
+    {id:22, name:"Pattern 14: Increasing Letter Triangle", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6582004"},
+    {id:23, name:"Pattern 15: Inverted Letter Triangle", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6582007"},
+    {id:24, name:"Pattern 16: Alpha-Ramp Pattern", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6582011"},
+    {id:25, name:"Pattern 17: Alpha-Hill Pattern", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6582013"},
+    {id:26, name:"Pattern 18: Alpha-Triangle Pattern", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6582016"},
+    {id:27, name:"Pattern 19: Symmetric Butterfly", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6582017"},
+    {id:28, name:"Pattern 20: Symmetric Void Pattern", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6582020"},
+    {id:29, name:"Pattern 21: Hollow Rectangle Star", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6582022"},
+    {id:30, name:"Pattern 22: Number Pattern (Striver Special)", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-pattern_6582025"},
+   ]},
+   {sub:"Basic Maths", qs:[
+    {id:31, name:"Count Digits in a Number", lc:"", gfg:"count-digits-in-a-number1444", cn:""},
+    {id:32, name:"Reverse a Number", lc:"", gfg:"reverse-digits0316", cn:""},
+    {id:33, name:"Check if a Number is Palindrome", lc:"9", gfg:"", cn:""},
+    {id:34, name:"Find GCD / HCF of Two Numbers", lc:"", gfg:"gcd-two-numbers2513", cn:""},
+    {id:35, name:"Print All Divisors of a Number", lc:"", gfg:"sum-of-all-divisors-from-1-to-n3714", cn:""},
+    {id:36, name:"Check if Number is Armstrong Number", lc:"", gfg:"armstrong-numbers2727", cn:""},
+    {id:37, name:"Sieve of Eratosthenes – All Primes up to N", lc:"204", gfg:"", cn:""},
+   ]},
+   {sub:"Basic Recursion", qs:[
+    {id:38, name:"Print 1 to N Using Recursion", lc:"", gfg:"print-1-to-n-without-using-loops-1587115620", cn:""},
+    {id:39, name:"Print N to 1 Using Recursion", lc:"", gfg:"print-n-to-1-without-loop2843", cn:""},
+    {id:40, name:"Print 1 to N Using Backtracking", lc:"", gfg:"print-1-to-n-without-using-loops-1587115620", cn:""},
+    {id:41, name:"Factorial of N Using Recursion", lc:"", gfg:"find-all-factorial-numbers-less-than-or-equal-to-n-1587115620", cn:""},
+    {id:42, name:"Reverse an Array Using Recursion", lc:"", gfg:"reverse-an-array", cn:""},
+    {id:43, name:"Check if String is Palindrome Using Recursion", lc:"125", gfg:"", cn:""},
+    {id:44, name:"Fibonacci Number Using Recursion", lc:"509", gfg:"", cn:""},
+   ]},
+   {sub:"Basic Hashing", qs:[
+    {id:45, name:"Counting Frequency of Elements in Array", lc:"", gfg:"frequency-of-array-elements-1587115620", cn:""},
+    {id:46, name:"Find Highest / Lowest Frequency Element", lc:"", gfg:"max-and-min-element-in-an-array-1587115620", cn:""},
+   ]},
+  ]
+ },
+ {
+  step:2, title:"Sorting Techniques", icon:"🔀", color:"#39d353",
+  sections:[
+   {sub:"Sorting I", qs:[
+    {id:47, name:"Selection Sort", lc:"", gfg:"selection-sort-algorithm-2", cn:""},
+    {id:48, name:"Bubble Sort", lc:"", gfg:"bubble-sort-algorithm-0x10", cn:""},
+    {id:49, name:"Insertion Sort", lc:"", gfg:"insertion-sort", cn:""},
+   ]},
+   {sub:"Sorting II – Divide & Conquer", qs:[
+    {id:50, name:"Merge Sort", lc:"", gfg:"merge-sort", cn:""},
+    {id:51, name:"Recursive Bubble Sort", lc:"", gfg:"recursive-bubble-sort", cn:""},
+    {id:52, name:"Recursive Insertion Sort", lc:"", gfg:"recursive-insertion-sort", cn:""},
+    {id:53, name:"Quick Sort", lc:"", gfg:"quick-sort-algo-1587115620", cn:""},
+   ]},
+  ]
+ },
+ {
+  step:3, title:"Arrays", icon:"📊", color:"#3fb950",
+  sections:[
+   {sub:"Easy Problems", qs:[
+    {id:54, name:"Largest Element in an Array", lc:"", gfg:"largest-element-in-array4009", cn:""},
+    {id:55, name:"Second Largest Element in an Array", lc:"", gfg:"second-largest3735", cn:""},
+    {id:56, name:"Check if Array is Sorted", lc:"1752", gfg:"", cn:""},
+    {id:57, name:"Remove Duplicates from Sorted Array", lc:"26", gfg:"", cn:""},
+    {id:58, name:"Left Rotate Array by One Place", lc:"", gfg:"rotation-by-one1738", cn:""},
+    {id:59, name:"Left Rotate Array by D Places", lc:"189", gfg:"", cn:""},
+    {id:60, name:"Move Zeros to the End", lc:"283", gfg:"", cn:""},
+    {id:61, name:"Linear Search", lc:"", gfg:"who-will-win-1587115621", cn:""},
+    {id:62, name:"Find the Union of Two Sorted Arrays", lc:"", gfg:"union-of-two-sorted-arrays-1587115621", cn:""},
+    {id:63, name:"Find Missing Number in an Array", lc:"268", gfg:"", cn:""},
+    {id:64, name:"Maximum Consecutive Ones", lc:"485", gfg:"", cn:""},
+    {id:65, name:"Find Number Appearing Once (others appear twice)", lc:"136", gfg:"", cn:""},
+    {id:66, name:"Longest Subarray with Sum K (positives)", lc:"", gfg:"longest-sub-array-with-sum-k1921", cn:""},
+    {id:67, name:"Longest Subarray with Sum K (pos + neg)", lc:"", gfg:"longest-sub-array-with-sum-k1921", cn:""},
+   ]},
+   {sub:"Medium Problems", qs:[
+    {id:68, name:"Two Sum – Check if Pair Sum Exists", lc:"1", gfg:"", cn:""},
+    {id:69, name:"Sort Array of 0s, 1s, 2s (Dutch National Flag)", lc:"75", gfg:"", cn:""},
+    {id:70, name:"Majority Element (> N/2 times)", lc:"169", gfg:"", cn:""},
+    {id:71, name:"Kadane's Algorithm – Maximum Subarray Sum", lc:"53", gfg:"", cn:""},
+    {id:72, name:"Stock Buy & Sell – Max Profit (1 transaction)", lc:"121", gfg:"", cn:""},
+    {id:73, name:"Rearrange Array Alternately (pos & neg)", lc:"2149", gfg:"", cn:""},
+    {id:74, name:"Next Permutation", lc:"31", gfg:"", cn:""},
+    {id:75, name:"Leaders in an Array", lc:"", gfg:"leaders-in-an-array-1587115620", cn:""},
+    {id:76, name:"Longest Consecutive Sequence", lc:"128", gfg:"", cn:""},
+    {id:77, name:"Set Matrix Zeroes", lc:"73", gfg:"", cn:""},
+    {id:78, name:"Rotate Matrix by 90 Degrees", lc:"48", gfg:"", cn:""},
+    {id:79, name:"Print Matrix in Spiral Order", lc:"54", gfg:"", cn:""},
+    {id:80, name:"Count Subarrays with Given Sum (prefix XOR)", lc:"560", gfg:"", cn:""},
+    {id:81, name:"Pascal's Triangle (all three variations)", lc:"118", gfg:"", cn:""},
+    {id:82, name:"Majority Element II (> N/3 times)", lc:"229", gfg:"", cn:""},
+    {id:83, name:"3-Sum Problem", lc:"15", gfg:"", cn:""},
+    {id:84, name:"4-Sum Problem", lc:"18", gfg:"", cn:""},
+   ]},
+   {sub:"Hard Problems", qs:[
+    {id:85, name:"Largest Subarray with 0 Sum", lc:"", gfg:"largest-subarray-with-0-sum", cn:""},
+    {id:86, name:"Count Subarrays with Given XOR K", lc:"", gfg:"count-subarray-with-given-xor", cn:""},
+    {id:87, name:"Merge Overlapping Subintervals", lc:"56", gfg:"", cn:""},
+    {id:88, name:"Merge Two Sorted Arrays Without Extra Space", lc:"88", gfg:"", cn:""},
+    {id:89, name:"Find the Repeating and Missing Number", lc:"", gfg:"find-missing-and-repeating2512", cn:""},
+    {id:90, name:"Count Inversions in an Array", lc:"", gfg:"number-of-inversions1958", cn:""},
+    {id:91, name:"Reverse Pairs", lc:"493", gfg:"", cn:""},
+    {id:92, name:"Maximum Product Subarray", lc:"152", gfg:"", cn:""},
+   ]},
+  ]
+ },
+ {
+  step:4, title:"Binary Search", icon:"🔍", color:"#bc8cff",
+  sections:[
+   {sub:"BS on 1D Arrays", qs:[
+    {id:93,  name:"Binary Search to Find X in Sorted Array", lc:"704", gfg:"", cn:""},
+    {id:94,  name:"Implement Lower Bound", lc:"", gfg:"implement-lower-bound", cn:""},
+    {id:95,  name:"Implement Upper Bound", lc:"", gfg:"implement-upper-bound", cn:""},
+    {id:96,  name:"Search Insert Position", lc:"35", gfg:"", cn:""},
+    {id:97,  name:"Floor and Ceil in Sorted Array", lc:"", gfg:"floor-in-a-sorted-array-1587115620", cn:""},
+    {id:98,  name:"First and Last Occurrence of Element", lc:"34", gfg:"", cn:""},
+    {id:99,  name:"Count Occurrences in Sorted Array", lc:"", gfg:"occurrence-of-an-integer-in-an-array", cn:""},
+    {id:100, name:"Search in Rotated Sorted Array I", lc:"33", gfg:"", cn:""},
+    {id:101, name:"Search in Rotated Sorted Array II (with duplicates)", lc:"81", gfg:"", cn:""},
+    {id:102, name:"Find Minimum in Rotated Sorted Array", lc:"153", gfg:"", cn:""},
+    {id:103, name:"Find How Many Times Array Has Been Rotated", lc:"", gfg:"rotation4723", cn:""},
+    {id:104, name:"Single Element in a Sorted Array", lc:"540", gfg:"", cn:""},
+    {id:105, name:"Find Peak Element", lc:"162", gfg:"", cn:""},
+   ]},
+   {sub:"BS on Answers – Search Space", qs:[
+    {id:106, name:"Find Square Root of a Number in Log N", lc:"69", gfg:"", cn:""},
+    {id:107, name:"Find Nth Root of a Number Using Binary Search", lc:"", gfg:"find-nth-root-of-m3435", cn:""},
+    {id:108, name:"Koko Eating Bananas", lc:"875", gfg:"", cn:""},
+    {id:109, name:"Minimum Days to Make M Bouquets", lc:"1482", gfg:"", cn:""},
+    {id:110, name:"Find the Smallest Divisor Given a Threshold", lc:"1283", gfg:"", cn:""},
+    {id:111, name:"Capacity to Ship Packages within D Days", lc:"1011", gfg:"", cn:""},
+    {id:112, name:"Aggressive Cows", lc:"", gfg:"aggressive-cows", cn:""},
+    {id:113, name:"Book Allocation Problem", lc:"", gfg:"allocate-minimum-number-of-pages0937", cn:""},
+    {id:114, name:"Split Array – Largest Sum", lc:"410", gfg:"", cn:""},
+    {id:115, name:"Painter's Partition Problem", lc:"", gfg:"the-painters-partition-problem1535", cn:""},
+    {id:116, name:"Minimize Max Distance to Gas Station", lc:"774", gfg:"", cn:""},
+    {id:117, name:"Median of Two Sorted Arrays", lc:"4", gfg:"", cn:""},
+    {id:118, name:"Kth Element of Two Sorted Arrays", lc:"", gfg:"k-th-element-of-two-sorted-array1317", cn:""},
+    {id:119, name:"Kth Missing Positive Number", lc:"1539", gfg:"", cn:""},
+   ]},
+   {sub:"BS on 2D Arrays", qs:[
+    {id:120, name:"Find Row with Maximum Number of 1s", lc:"", gfg:"row-with-max-1s0023", cn:""},
+    {id:121, name:"Search in a 2D Matrix", lc:"74", gfg:"", cn:""},
+    {id:122, name:"Search in Row and Column Wise Sorted Matrix", lc:"240", gfg:"", cn:""},
+    {id:123, name:"Find Peak Element in 2D Matrix", lc:"1901", gfg:"", cn:""},
+    {id:124, name:"Matrix Median", lc:"", gfg:"median-in-a-row-wise-sorted-matrix1527", cn:""},
+   ]},
+  ]
+ },
+ {
+  step:5, title:"Strings", icon:"🔤", color:"#ec4899",
+  sections:[
+   {sub:"Basic String Problems", qs:[
+    {id:125, name:"Remove Outermost Parentheses", lc:"1021", gfg:"", cn:""},
+    {id:126, name:"Reverse Words in a Given String", lc:"151", gfg:"", cn:""},
+    {id:127, name:"Largest Odd Number in a String", lc:"1903", gfg:"", cn:""},
+    {id:128, name:"Longest Common Prefix", lc:"14", gfg:"", cn:""},
+    {id:129, name:"Isomorphic Strings", lc:"205", gfg:"", cn:""},
+    {id:130, name:"Check if Two Strings are Rotations of Each Other", lc:"", gfg:"check-if-two-strings-are-k-anagrams-of-each-other", cn:""},
+    {id:131, name:"Check if Two Strings are Anagrams", lc:"242", gfg:"", cn:""},
+   ]},
+   {sub:"Medium String Problems", qs:[
+    {id:132, name:"Sort Characters by Frequency", lc:"451", gfg:"", cn:""},
+    {id:133, name:"Maximum Nesting Depth of Parentheses", lc:"1614", gfg:"", cn:""},
+    {id:134, name:"Roman Number to Integer and Vice Versa", lc:"13", gfg:"", cn:""},
+    {id:135, name:"Implement atoi – String to Integer", lc:"8", gfg:"", cn:""},
+    {id:136, name:"Count Number of Substrings", lc:"", gfg:"count-number-of-substrings4528", cn:""},
+    {id:137, name:"Longest Palindromic Substring", lc:"5", gfg:"", cn:""},
+    {id:138, name:"Sum of Beauty of All Substrings", lc:"1781", gfg:"", cn:""},
+    {id:139, name:"Minimum Bracket Reversals", lc:"", gfg:"count-the-reversals0647", cn:""},
+   ]},
+  ]
+ },
+ {
+  step:6, title:"Linked List", icon:"🔗", color:"#f97316",
+  sections:[
+   {sub:"Learn 1D Linked List", qs:[
+    {id:140, name:"Introduction to LL – Struct / Node", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-linked-list_8144737"},
+    {id:141, name:"Inserting a Node in LinkedList", lc:"707", gfg:"", cn:""},
+    {id:142, name:"Deleting a Node in LinkedList", lc:"237", gfg:"", cn:""},
+    {id:143, name:"Find the Length of the Linked List", lc:"", gfg:"count-nodes-of-linked-list", cn:""},
+    {id:144, name:"Search an Element in the Linked List", lc:"", gfg:"search-in-linked-list-1664434366", cn:""},
+   ]},
+   {sub:"Learn Doubly Linked List", qs:[
+    {id:145, name:"Introduction to Doubly Linked List", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/introduction-to-doubly-linked-list_8160413"},
+    {id:146, name:"Insert a Node in DLL", lc:"", gfg:"introduction-and-insertion-in-a-doubly-linked-list", cn:""},
+    {id:147, name:"Delete a Node in DLL", lc:"", gfg:"delete-node-in-doubly-linked-list", cn:""},
+    {id:148, name:"Reverse a Doubly Linked List", lc:"", gfg:"reverse-a-doubly-linked-list", cn:""},
+   ]},
+   {sub:"Medium Problems of LL", qs:[
+    {id:149, name:"Middle of a Linked List", lc:"876", gfg:"", cn:""},
+    {id:150, name:"Reverse a Linked List (Iterative + Recursive)", lc:"206", gfg:"", cn:""},
+    {id:151, name:"Detect a Loop / Cycle in Linked List", lc:"141", gfg:"", cn:""},
+    {id:152, name:"Find the Starting Point of the Loop", lc:"142", gfg:"", cn:""},
+    {id:153, name:"Length of Loop in Linked List", lc:"", gfg:"find-length-of-loop", cn:""},
+    {id:154, name:"Check if LL is Palindrome", lc:"234", gfg:"", cn:""},
+    {id:155, name:"Segregate Odd and Even Nodes in LL", lc:"328", gfg:"", cn:""},
+    {id:156, name:"Remove Nth Node from End of List", lc:"19", gfg:"", cn:""},
+    {id:157, name:"Delete the Middle Node of a LL", lc:"2095", gfg:"", cn:""},
+    {id:158, name:"Sort a Linked List – Merge Sort", lc:"148", gfg:"", cn:""},
+    {id:159, name:"Sort LL of 0s, 1s, 2s", lc:"", gfg:"given-a-linked-list-of-0s-1s-and-2s-sort-it", cn:""},
+    {id:160, name:"Find Intersection Point of Y-shaped LL", lc:"160", gfg:"", cn:""},
+    {id:161, name:"Add 1 to Number Represented as LL", lc:"", gfg:"add-1-to-a-number-represented-as-linked-list", cn:""},
+    {id:162, name:"Add Two Numbers Represented as LL", lc:"2", gfg:"", cn:""},
+    {id:163, name:"Merge Two Sorted Linked Lists", lc:"21", gfg:"", cn:""},
+   ]},
+   {sub:"Medium Problems of DLL", qs:[
+    {id:164, name:"Delete All Occurrences of a Key in DLL", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/delete-all-occurrences-of-a-given-key-in-a-doubly-linked-list_8160461"},
+    {id:165, name:"Find Pairs with Given Sum in DLL", lc:"", gfg:"find-pairs-with-given-sum-in-doubly-linked-list", cn:""},
+    {id:166, name:"Remove Duplicates from Sorted DLL", lc:"", gfg:"remove-duplicates-from-a-sorted-doubly-linked-list", cn:""},
+   ]},
+   {sub:"Hard Problems of LL", qs:[
+    {id:167, name:"Reverse LL in Groups of Given Size K", lc:"25", gfg:"", cn:""},
+    {id:168, name:"Rotate a Linked List", lc:"61", gfg:"", cn:""},
+    {id:169, name:"Flattening a Linked List", lc:"", gfg:"flattening-a-linked-list", cn:""},
+    {id:170, name:"Clone a Linked List with Random Pointer", lc:"138", gfg:"", cn:""},
+   ]},
+  ]
+ },
+ {
+  step:7, title:"Recursion & Backtracking", icon:"🔄", color:"#a78bfa",
+  sections:[
+   {sub:"Get a Strong Hold", qs:[
+    {id:171, name:"Recursive Implementation of atoi()", lc:"", gfg:"recursive-implementation-of-atoi", cn:""},
+    {id:172, name:"Pow(x, n) – Fast Exponentiation", lc:"50", gfg:"", cn:""},
+    {id:173, name:"Count Good Numbers", lc:"1922", gfg:"", cn:""},
+    {id:174, name:"Sort a Stack Using Recursion", lc:"", gfg:"sort-a-stack", cn:""},
+    {id:175, name:"Reverse a Stack Using Recursion", lc:"", gfg:"reverse-a-stack", cn:""},
+   ]},
+   {sub:"Subsequences Pattern", qs:[
+    {id:176, name:"Generate All Binary Strings Without Consecutive 1s", lc:"", gfg:"generate-all-binary-strings-without-consecutive-1s", cn:""},
+    {id:177, name:"Generate Parentheses", lc:"22", gfg:"", cn:""},
+    {id:178, name:"Print All Subsequences / Power Set", lc:"78", gfg:"", cn:""},
+    {id:179, name:"Print All Subsequences with Sum K", lc:"", gfg:"print-all-subsequences-with-sum-k", cn:""},
+    {id:180, name:"Count All Subsequences with Sum K", lc:"", gfg:"number-of-subsequences-with-sum-k3534", cn:""},
+    {id:181, name:"Combination Sum I – Unlimited Use", lc:"39", gfg:"", cn:""},
+    {id:182, name:"Combination Sum II – Each Element Once", lc:"40", gfg:"", cn:""},
+    {id:183, name:"Subset Sum I – All Subset Sums", lc:"", gfg:"subset-sums2234", cn:""},
+    {id:184, name:"Subset Sum II – No Duplicate Subsets", lc:"90", gfg:"", cn:""},
+    {id:185, name:"Combination Sum III", lc:"216", gfg:"", cn:""},
+    {id:186, name:"Letter Combinations of a Phone Number", lc:"17", gfg:"", cn:""},
+   ]},
+   {sub:"Backtracking – Hardcoded Options", qs:[
+    {id:187, name:"Palindrome Partitioning", lc:"131", gfg:"", cn:""},
+    {id:188, name:"Word Search", lc:"79", gfg:"", cn:""},
+    {id:189, name:"N-Queens", lc:"51", gfg:"", cn:""},
+    {id:190, name:"Rat in a Maze", lc:"", gfg:"rat-in-a-maze-problem", cn:""},
+    {id:191, name:"Word Break", lc:"139", gfg:"", cn:""},
+    {id:192, name:"M Coloring Problem", lc:"", gfg:"m-coloring-problem", cn:""},
+    {id:193, name:"Sudoku Solver", lc:"37", gfg:"", cn:""},
+    {id:194, name:"Expression Add Operators", lc:"282", gfg:"", cn:""},
+   ]},
+  ]
+ },
+ {
+  step:8, title:"Bit Manipulation", icon:"⚙️", color:"#60a5fa",
+  sections:[
+   {sub:"Learn Bit Manipulation", qs:[
+    {id:195, name:"Introduction to Bit Manipulation", lc:"", gfg:"bits-manipulation-important-tactics", cn:""},
+    {id:196, name:"Check if the i-th Bit is Set", lc:"", gfg:"check-whether-k-th-bit-is-set-or-not", cn:""},
+    {id:197, name:"Check if Number is Odd / Even Using Bits", lc:"", gfg:"odd-or-even3618", cn:""},
+    {id:198, name:"Check if Number is Power of 2", lc:"231", gfg:"", cn:""},
+    {id:199, name:"Count Number of Set Bits", lc:"191", gfg:"", cn:""},
+    {id:200, name:"Set / Clear / Toggle the i-th Bit", lc:"", gfg:"bit-manipulation-1666686020", cn:""},
+    {id:201, name:"Remove the Rightmost Set Bit", lc:"", gfg:"remove-rightmost-set-bit3412", cn:""},
+   ]},
+   {sub:"Interview Problems", qs:[
+    {id:202, name:"Find the Two Numbers Appearing Odd Times", lc:"", gfg:"two-numbers-with-odd-occurrences5827", cn:""},
+    {id:203, name:"Power Set – Generate All Subsets Using Bits", lc:"78", gfg:"", cn:""},
+    {id:204, name:"Find XOR of Numbers from L to R", lc:"", gfg:"find-xor-of-numbers-from-l-to-r", cn:""},
+    {id:205, name:"Find the Two Non-Repeating Elements", lc:"260", gfg:"", cn:""},
+    {id:206, name:"Count Total Set Bits from 1 to N", lc:"", gfg:"count-total-set-bits-1587115620", cn:""},
+    {id:207, name:"Rotate Bits of a Number", lc:"", gfg:"rotate-bits-of-a-number", cn:""},
+    {id:208, name:"Divide Two Integers Without Using / or *", lc:"29", gfg:"", cn:""},
+    {id:209, name:"Reverse Bits", lc:"190", gfg:"", cn:""},
+    {id:210, name:"Single Number I", lc:"136", gfg:"", cn:""},
+    {id:211, name:"Single Number II", lc:"137", gfg:"", cn:""},
+    {id:212, name:"Single Number III – Find Two Non-Repeating", lc:"260", gfg:"", cn:""},
+   ]},
+  ]
+ },
+ {
+  step:9, title:"Stack & Queues", icon:"📚", color:"#0ea5e9",
+  sections:[
+   {sub:"Learning", qs:[
+    {id:213, name:"Implement Stack Using Arrays", lc:"", gfg:"implement-stack-using-array", cn:""},
+    {id:214, name:"Implement Queue Using Arrays", lc:"", gfg:"queue-using-two-stacks", cn:""},
+    {id:215, name:"Implement Stack Using Queue", lc:"225", gfg:"", cn:""},
+    {id:216, name:"Implement Queue Using Stack", lc:"232", gfg:"", cn:""},
+    {id:217, name:"Implement Stack Using Linked List", lc:"", gfg:"implement-stack-using-linked-list", cn:""},
+    {id:218, name:"Implement Queue Using Linked List", lc:"", gfg:"implement-queue-using-linked-list", cn:""},
+    {id:219, name:"Check for Balanced Parentheses", lc:"20", gfg:"", cn:""},
+    {id:220, name:"Implement Min Stack – getMin in O(1)", lc:"155", gfg:"", cn:""},
+   ]},
+   {sub:"Prefix / Infix / PostFix Conversions", qs:[
+    {id:221, name:"Infix to Postfix Conversion", lc:"", gfg:"infix-to-postfix-1587115620", cn:""},
+    {id:222, name:"Prefix to Infix Conversion", lc:"", gfg:"prefix-to-infix-conversion", cn:""},
+    {id:223, name:"Prefix to Postfix Conversion", lc:"", gfg:"prefix-to-postfix-conversion", cn:""},
+    {id:224, name:"Postfix to Prefix Conversion", lc:"", gfg:"postfix-to-prefix-conversion", cn:""},
+    {id:225, name:"Postfix to Infix Conversion", lc:"", gfg:"postfix-to-infix-conversion", cn:""},
+    {id:226, name:"Infix to Prefix Conversion", lc:"", gfg:"infix-to-prefix-conversion", cn:""},
+   ]},
+   {sub:"Monotonic Stack / Queue", qs:[
+    {id:227, name:"Next Greater Element I", lc:"496", gfg:"", cn:""},
+    {id:228, name:"Next Greater Element II – Circular Array", lc:"503", gfg:"", cn:""},
+    {id:229, name:"Next Smaller Element", lc:"", gfg:"next-smaller-element-1587115620", cn:""},
+    {id:230, name:"Trapping Rain Water", lc:"42", gfg:"", cn:""},
+    {id:231, name:"Sum of Subarray Minimums", lc:"907", gfg:"", cn:""},
+    {id:232, name:"Asteroid Collision", lc:"735", gfg:"", cn:""},
+    {id:233, name:"Sum of Subarray Ranges", lc:"2104", gfg:"", cn:""},
+    {id:234, name:"Remove K Digits", lc:"402", gfg:"", cn:""},
+    {id:235, name:"Largest Rectangle in Histogram", lc:"84", gfg:"", cn:""},
+    {id:236, name:"Maximal Rectangle in Binary Matrix", lc:"85", gfg:"", cn:""},
+   ]},
+   {sub:"Implementation Problems", qs:[
+    {id:237, name:"Sliding Window Maximum", lc:"239", gfg:"", cn:""},
+    {id:238, name:"Stock Span Problem", lc:"", gfg:"stock-span-problem-1587115621", cn:""},
+    {id:239, name:"The Celebrity Problem", lc:"277", gfg:"", cn:""},
+    {id:240, name:"LRU Cache (IMPORTANT)", lc:"146", gfg:"", cn:""},
+    {id:241, name:"LFU Cache", lc:"460", gfg:"", cn:""},
+   ]},
+  ]
+ },
+ {
+  step:10, title:"Sliding Window & Two Pointer", icon:"🪟", color:"#14b8a6",
+  sections:[
+   {sub:"Medium Problems", qs:[
+    {id:242, name:"Longest Subarray with Sum K (Positives)", lc:"", gfg:"longest-sub-array-with-sum-k1921", cn:""},
+    {id:243, name:"Longest Substring Without Repeating Characters", lc:"3", gfg:"", cn:""},
+    {id:244, name:"Max Consecutive Ones III", lc:"1004", gfg:"", cn:""},
+    {id:245, name:"Fruit Into Baskets", lc:"904", gfg:"", cn:""},
+    {id:246, name:"Longest Repeating Character Replacement", lc:"424", gfg:"", cn:""},
+    {id:247, name:"Binary Subarrays with Sum", lc:"930", gfg:"", cn:""},
+    {id:248, name:"Count Number of Nice Subarrays", lc:"1248", gfg:"", cn:""},
+    {id:249, name:"Number of Substrings Containing All 3 Characters", lc:"1358", gfg:"", cn:""},
+    {id:250, name:"Maximum Points You Can Obtain from Cards", lc:"1423", gfg:"", cn:""},
+   ]},
+   {sub:"Hard Problems", qs:[
+    {id:251, name:"Longest Substring with At Most K Distinct Characters", lc:"340", gfg:"", cn:""},
+    {id:252, name:"Subarray with K Different Integers", lc:"992", gfg:"", cn:""},
+    {id:253, name:"Minimum Window Substring", lc:"76", gfg:"", cn:""},
+    {id:254, name:"Minimum Window Containing Subsequence", lc:"727", gfg:"", cn:""},
+   ]},
+  ]
+ },
+ {
+  step:11, title:"Heaps", icon:"⛰️", color:"#fb923c",
+  sections:[
+   {sub:"Learning", qs:[
+    {id:255, name:"Min Heap and Max Heap Implementation", lc:"", gfg:"implementation-of-priority-queue-using-binary-heap", cn:""},
+    {id:256, name:"Heap Sort", lc:"", gfg:"heap-sort", cn:""},
+    {id:257, name:"Find Kth Largest Element in an Array", lc:"215", gfg:"", cn:""},
+    {id:258, name:"Find Kth Smallest Element in an Array", lc:"", gfg:"kth-smallest-element5635", cn:""},
+    {id:259, name:"Merge K Sorted Lists", lc:"23", gfg:"", cn:""},
+   ]},
+   {sub:"Medium Problems", qs:[
+    {id:260, name:"Kth Largest Element in a Stream", lc:"703", gfg:"", cn:""},
+    {id:261, name:"Maximum Sum Combination", lc:"", gfg:"maximum-sum-combination", cn:""},
+    {id:262, name:"Find Median from Data Stream", lc:"295", gfg:"", cn:""},
+    {id:263, name:"K Most Frequent Elements", lc:"347", gfg:"", cn:""},
+    {id:264, name:"Sort a K-Sorted Array", lc:"", gfg:"nearly-sorted-1587115620", cn:""},
+    {id:265, name:"Task Scheduler", lc:"621", gfg:"", cn:""},
+   ]},
+   {sub:"Hard Problems", qs:[
+    {id:266, name:"Maximum Performance of a Team", lc:"1383", gfg:"", cn:""},
+    {id:267, name:"Minimum Cost to Connect Ropes", lc:"", gfg:"minimum-cost-of-ropes-1587115620", cn:""},
+    {id:268, name:"Hand of Straights", lc:"846", gfg:"", cn:""},
+    {id:269, name:"Design Twitter – Top K Tweets", lc:"355", gfg:"", cn:""},
+   ]},
+  ]
+ },
+ {
+  step:12, title:"Greedy Algorithms", icon:"💰", color:"#22c55e",
+  sections:[
+   {sub:"Easy Problems", qs:[
+    {id:270, name:"Assign Cookies", lc:"455", gfg:"", cn:""},
+    {id:271, name:"Fractional Knapsack Problem", lc:"", gfg:"fractional-knapsack-1587115620", cn:""},
+    {id:272, name:"Minimum Number of Coins (Greedy)", lc:"322", gfg:"", cn:""},
+    {id:273, name:"Lemonade Change", lc:"860", gfg:"", cn:""},
+    {id:274, name:"Valid Parenthesis String", lc:"678", gfg:"", cn:""},
+   ]},
+   {sub:"Medium / Hard Problems", qs:[
+    {id:275, name:"N Meetings in One Room – Activity Selection", lc:"", gfg:"n-meetings-in-one-room-1587115620", cn:""},
+    {id:276, name:"Jump Game I", lc:"55", gfg:"", cn:""},
+    {id:277, name:"Jump Game II – Minimum Jumps", lc:"45", gfg:"", cn:""},
+    {id:278, name:"Minimum Platforms Required for Railways", lc:"", gfg:"minimum-platforms-1587115620", cn:""},
+    {id:279, name:"Job Sequencing Problem", lc:"", gfg:"job-sequencing-problem-1587115620", cn:""},
+    {id:280, name:"Candy Distribution", lc:"135", gfg:"", cn:""},
+    {id:281, name:"Insert Interval", lc:"57", gfg:"", cn:""},
+    {id:282, name:"Non-overlapping Intervals", lc:"435", gfg:"", cn:""},
+    {id:283, name:"Merge Intervals", lc:"56", gfg:"", cn:""},
+    {id:284, name:"Shortest Job First Scheduling", lc:"", gfg:"shortest-job-first-or-sjf-cpu-scheduling-non-preemptive", cn:""},
+    {id:285, name:"Page Faults in LRU", lc:"", gfg:"page-faults-in-lru5603", cn:""},
+   ]},
+  ]
+ },
+ {
+  step:13, title:"Binary Trees", icon:"🌲", color:"#4ade80",
+  sections:[
+   {sub:"Traversals", qs:[
+    {id:286, name:"Binary Tree Traversals – Pre / In / Post (Recursive)", lc:"144", gfg:"", cn:""},
+    {id:287, name:"Preorder Traversal (Iterative)", lc:"144", gfg:"", cn:""},
+    {id:288, name:"Inorder Traversal (Iterative)", lc:"94", gfg:"", cn:""},
+    {id:289, name:"Postorder Traversal (Iterative – 2 Stacks + 1 Stack)", lc:"145", gfg:"", cn:""},
+    {id:290, name:"Level Order Traversal – BFS", lc:"102", gfg:"", cn:""},
+    {id:291, name:"Pre + In + Post in One Single Traversal", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/tree-traversals_981269"},
+    {id:292, name:"Height of Binary Tree", lc:"104", gfg:"", cn:""},
+    {id:293, name:"Check if Binary Tree is Balanced", lc:"110", gfg:"", cn:""},
+    {id:294, name:"Diameter of Binary Tree", lc:"543", gfg:"", cn:""},
+    {id:295, name:"Maximum Path Sum in Binary Tree", lc:"124", gfg:"", cn:""},
+    {id:296, name:"Check if Two Trees are Identical", lc:"100", gfg:"", cn:""},
+    {id:297, name:"Zig-Zag Level Order Traversal", lc:"103", gfg:"", cn:""},
+   ]},
+   {sub:"Medium Problems", qs:[
+    {id:298, name:"Boundary Traversal of Binary Tree", lc:"", gfg:"boundary-traversal-of-binary-tree", cn:""},
+    {id:299, name:"Vertical Order Traversal", lc:"987", gfg:"", cn:""},
+    {id:300, name:"Top View of Binary Tree", lc:"", gfg:"top-view-of-binary-tree", cn:""},
+    {id:301, name:"Bottom View of Binary Tree", lc:"", gfg:"bottom-view-of-binary-tree", cn:""},
+    {id:302, name:"Right / Left View of Binary Tree", lc:"199", gfg:"", cn:""},
+    {id:303, name:"Symmetric Binary Tree", lc:"101", gfg:"", cn:""},
+    {id:304, name:"Print Root to Node Path", lc:"", gfg:"root-to-leaf-paths", cn:""},
+    {id:305, name:"LCA of Two Nodes in Binary Tree", lc:"236", gfg:"", cn:""},
+    {id:306, name:"Maximum Width of Binary Tree", lc:"662", gfg:"", cn:""},
+    {id:307, name:"All Nodes at Distance K from Target", lc:"863", gfg:"", cn:""},
+    {id:308, name:"Minimum Time to Burn the Entire Binary Tree", lc:"", gfg:"burning-tree", cn:""},
+    {id:309, name:"Count Total Nodes in Complete Binary Tree", lc:"222", gfg:"", cn:""},
+    {id:310, name:"Requirements to Construct Unique Binary Tree", lc:"", gfg:"unique-binary-tree-requirements", cn:""},
+   ]},
+   {sub:"Hard Problems", qs:[
+    {id:311, name:"Construct BT from Inorder and Preorder", lc:"105", gfg:"", cn:""},
+    {id:312, name:"Construct BT from Inorder and Postorder", lc:"106", gfg:"", cn:""},
+    {id:313, name:"Serialize and Deserialize Binary Tree", lc:"297", gfg:"", cn:""},
+    {id:314, name:"Morris Inorder Traversal", lc:"94", gfg:"", cn:""},
+    {id:315, name:"Morris Preorder Traversal", lc:"144", gfg:"", cn:""},
+    {id:316, name:"Flatten Binary Tree to Linked List", lc:"114", gfg:"", cn:""},
+   ]},
+  ]
+ },
+ {
+  step:14, title:"Binary Search Trees", icon:"🌳", color:"#86efac",
+  sections:[
+   {sub:"Concepts", qs:[
+    {id:317, name:"Searching in a BST", lc:"700", gfg:"", cn:""},
+    {id:318, name:"Find Min and Max in BST", lc:"", gfg:"minimum-element-in-bst", cn:""},
+   ]},
+   {sub:"Practice Problems", qs:[
+    {id:319, name:"Ceil in a BST", lc:"", gfg:"ceil-in-bst", cn:""},
+    {id:320, name:"Floor in a BST", lc:"", gfg:"floor-in-bst", cn:""},
+    {id:321, name:"Insert a Node in BST", lc:"701", gfg:"", cn:""},
+    {id:322, name:"Delete a Node in BST", lc:"450", gfg:"", cn:""},
+    {id:323, name:"Kth Smallest Element in BST", lc:"230", gfg:"", cn:""},
+    {id:324, name:"Kth Largest Element in BST", lc:"", gfg:"kth-largest-element-in-bst", cn:""},
+    {id:325, name:"Validate Binary Search Tree", lc:"98", gfg:"", cn:""},
+    {id:326, name:"LCA in BST", lc:"235", gfg:"", cn:""},
+    {id:327, name:"Construct BST from Preorder Traversal", lc:"1008", gfg:"", cn:""},
+    {id:328, name:"Inorder Successor / Predecessor in BST", lc:"285", gfg:"", cn:""},
+    {id:329, name:"BST Iterator – next() and hasNext()", lc:"173", gfg:"", cn:""},
+    {id:330, name:"Two Sum in BST", lc:"653", gfg:"", cn:""},
+    {id:331, name:"Recover BST – Correct the Swapped Nodes", lc:"99", gfg:"", cn:""},
+    {id:332, name:"Largest BST Subtree in a Binary Tree", lc:"", gfg:"largest-bst", cn:""},
+   ]},
+  ]
+ },
+ {
+  step:15, title:"Graphs", icon:"🕸️", color:"#38bdf8",
+  sections:[
+   {sub:"Learning – BFS / DFS", qs:[
+    {id:333, name:"Graph Representation – Theory", lc:"", gfg:"graph-and-its-representations", cn:""},
+    {id:334, name:"BFS Traversal of Graph", lc:"", gfg:"bfs-traversal-of-graph", cn:""},
+    {id:335, name:"DFS Traversal of Graph", lc:"", gfg:"depth-first-traversal-for-a-graph", cn:""},
+    {id:336, name:"Number of Provinces – Connected Components", lc:"547", gfg:"", cn:""},
+    {id:337, name:"Number of Islands", lc:"200", gfg:"", cn:""},
+    {id:338, name:"Flood Fill Algorithm", lc:"733", gfg:"", cn:""},
+    {id:339, name:"Rotten Oranges – Multi-Source BFS", lc:"994", gfg:"", cn:""},
+    {id:340, name:"Detect Cycle in Undirected Graph (BFS)", lc:"", gfg:"detect-cycle-in-an-undirected-graph", cn:""},
+    {id:341, name:"Detect Cycle in Undirected Graph (DFS)", lc:"", gfg:"detect-cycle-in-an-undirected-graph", cn:""},
+    {id:342, name:"Distance of Nearest Cell with 1 – 0/1 Matrix", lc:"542", gfg:"", cn:""},
+    {id:343, name:"Surrounded Regions – Replace O with X", lc:"130", gfg:"", cn:""},
+    {id:344, name:"Number of Enclaves", lc:"1020", gfg:"", cn:""},
+    {id:345, name:"Word Ladder I", lc:"127", gfg:"", cn:""},
+    {id:346, name:"Word Ladder II", lc:"126", gfg:"", cn:""},
+    {id:347, name:"Number of Distinct Islands", lc:"", gfg:"number-of-distinct-islands", cn:""},
+    {id:348, name:"Bipartite Graph Check (BFS / DFS)", lc:"785", gfg:"", cn:""},
+    {id:349, name:"Detect Cycle in Directed Graph (DFS)", lc:"", gfg:"detect-cycle-in-a-directed-graph", cn:""},
+   ]},
+   {sub:"Topo Sort and Problems", qs:[
+    {id:350, name:"Topological Sort (DFS)", lc:"", gfg:"topological-sort", cn:""},
+    {id:351, name:"Kahn's Algorithm – Topological Sort (BFS)", lc:"", gfg:"topological-sort", cn:""},
+    {id:352, name:"Detect Cycle in Directed Graph via Topo Sort", lc:"", gfg:"detect-cycle-in-a-directed-graph", cn:""},
+    {id:353, name:"Course Schedule I", lc:"207", gfg:"", cn:""},
+    {id:354, name:"Course Schedule II", lc:"210", gfg:"", cn:""},
+    {id:355, name:"Find Eventual Safe States", lc:"802", gfg:"", cn:""},
+    {id:356, name:"Alien Dictionary – Topo Ordering of Characters", lc:"269", gfg:"", cn:""},
+   ]},
+   {sub:"Shortest Path Algorithms", qs:[
+    {id:357, name:"Shortest Path in Undirected Graph (Unit Weights)", lc:"", gfg:"shortest-path-in-undirected-graph-having-unit-distance", cn:""},
+    {id:358, name:"Shortest Path in DAG via Topological Sort", lc:"", gfg:"shortest-path-in-undirected-graph", cn:""},
+    {id:359, name:"Dijkstra's Algorithm – Priority Queue", lc:"", gfg:"dijkstras-shortest-path-algorithm", cn:""},
+    {id:360, name:"Dijkstra's Algorithm – Set", lc:"", gfg:"dijkstras-shortest-path-algorithm", cn:""},
+    {id:361, name:"Shortest Path in a Binary Maze", lc:"", gfg:"shortest-path-in-a-binary-maze", cn:""},
+    {id:362, name:"Path with Minimum Effort", lc:"1631", gfg:"", cn:""},
+    {id:363, name:"Cheapest Flights within K Stops", lc:"787", gfg:"", cn:""},
+    {id:364, name:"Minimum Multiplications to Reach End", lc:"", gfg:"minimum-multiplications-to-reach-end", cn:""},
+    {id:365, name:"Number of Ways to Arrive at Destination", lc:"1976", gfg:"", cn:""},
+    {id:366, name:"Bellman Ford Algorithm", lc:"", gfg:"distance-from-the-source-bellman-ford-algorithm", cn:""},
+    {id:367, name:"Floyd Warshall – All Pairs Shortest Path", lc:"", gfg:"implementing-floyd-warshall2042", cn:""},
+    {id:368, name:"City with Smallest Number of Reachable Cities", lc:"1334", gfg:"", cn:""},
+   ]},
+   {sub:"MST / Disjoint Set Union", qs:[
+    {id:369, name:"MST – Prim's Algorithm", lc:"", gfg:"minimum-spanning-tree", cn:""},
+    {id:370, name:"Disjoint Set Union – Union by Rank + Path Compression", lc:"", gfg:"union-find", cn:""},
+    {id:371, name:"Kruskal's Algorithm – MST via DSU", lc:"", gfg:"minimum-spanning-tree", cn:""},
+    {id:372, name:"Number of Operations to Make Network Connected", lc:"1319", gfg:"", cn:""},
+    {id:373, name:"Most Stones Removed with Same Row or Column", lc:"947", gfg:"", cn:""},
+    {id:374, name:"Accounts Merge", lc:"721", gfg:"", cn:""},
+    {id:375, name:"Number of Islands II – Online Queries", lc:"305", gfg:"", cn:""},
+    {id:376, name:"Making a Large Island", lc:"827", gfg:"", cn:""},
+    {id:377, name:"Swim in Rising Water", lc:"778", gfg:"", cn:""},
+   ]},
+   {sub:"Other Graph Algorithms", qs:[
+    {id:378, name:"Bridges in Graph – Tarjan's Algorithm", lc:"1192", gfg:"", cn:""},
+    {id:379, name:"Articulation Points in Graph", lc:"1568", gfg:"", cn:""},
+    {id:380, name:"Strongly Connected Components – Kosaraju's", lc:"", gfg:"strongly-connected-components-kosarajus-algo", cn:""},
+   ]},
+  ]
+ },
+ {
+  step:16, title:"Dynamic Programming", icon:"🧩", color:"#c084fc",
+  sections:[
+   {sub:"Introduction to DP", qs:[
+    {id:381, name:"Intro to DP – Memoization & Tabulation", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/dynamic-programming_630","diff":"Theory"},
+    {id:382, name:"Climbing Stairs", lc:"70", gfg:"", cn:""},
+    {id:383, name:"Frog Jump – 1 or 2 Steps", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/frog-jump_3621012"},
+    {id:384, name:"Frog Jump with K Distances", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/minimal-cost_8180930"},
+    {id:385, name:"Maximum Sum of Non-Adjacent Elements – House Robber", lc:"198", gfg:"", cn:""},
+    {id:386, name:"House Robber II – Circular", lc:"213", gfg:"", cn:""},
+    {id:387, name:"Ninja's Training – 2D DP", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/ninja-s-training_3621003"},
+   ]},
+   {sub:"2D / 3D DP and DP on Grids", qs:[
+    {id:388, name:"Grid Unique Paths", lc:"62", gfg:"", cn:""},
+    {id:389, name:"Grid Unique Paths II – with Obstacles", lc:"63", gfg:"", cn:""},
+    {id:390, name:"Minimum Path Sum in Grid", lc:"64", gfg:"", cn:""},
+    {id:391, name:"Triangle – Minimum Path Sum", lc:"120", gfg:"", cn:""},
+    {id:392, name:"Minimum / Maximum Falling Path Sum", lc:"931", gfg:"", cn:""},
+    {id:393, name:"Cherry Pickup II – 3D DP", lc:"1463", gfg:"", cn:""},
+    {id:394, name:"Chocolates Pickup – 3D DP Variant", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/chocolate-pickup_3167102"},
+   ]},
+   {sub:"DP on Subsequences", qs:[
+    {id:395, name:"Subset Sum Equal to K", lc:"", gfg:"subset-sum-problem-1611555638", cn:""},
+    {id:396, name:"Partition Equal Subset Sum", lc:"416", gfg:"", cn:""},
+    {id:397, name:"Partition Set – Minimize Absolute Difference", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/partition-a-set-into-two-subsets-such-that-the-difference-of-subset-sums-is-minimum_842494"},
+    {id:398, name:"Count Subsets with Sum K", lc:"", gfg:"perfect-sum-problem5633", cn:""},
+    {id:399, name:"Count Partitions with Given Difference", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/partitions-with-given-difference_3751628"},
+    {id:400, name:"0/1 Knapsack Problem", lc:"", gfg:"0-1-knapsack-problem0945", cn:""},
+    {id:401, name:"Minimum Coins – Coin Change", lc:"322", gfg:"", cn:""},
+    {id:402, name:"Target Sum", lc:"494", gfg:"", cn:""},
+    {id:403, name:"Coin Change II – Count Ways", lc:"518", gfg:"", cn:""},
+    {id:404, name:"Unbounded Knapsack", lc:"", gfg:"knapsack-with-duplicate-items4941", cn:""},
+    {id:405, name:"Rod Cutting Problem", lc:"", gfg:"rod-cutting0840", cn:""},
+   ]},
+   {sub:"DP on Strings", qs:[
+    {id:406, name:"Longest Common Subsequence – LCS", lc:"1143", gfg:"", cn:""},
+    {id:407, name:"Print LCS", lc:"", gfg:"print-all-lcs-sequences3413", cn:""},
+    {id:408, name:"Longest Common Substring", lc:"", gfg:"longest-common-substring1452", cn:""},
+    {id:409, name:"Longest Palindromic Subsequence", lc:"516", gfg:"", cn:""},
+    {id:410, name:"Minimum Insertions to Make String Palindrome", lc:"1312", gfg:"", cn:""},
+    {id:411, name:"Min Insertions / Deletions to Convert A to B", lc:"583", gfg:"", cn:""},
+    {id:412, name:"Shortest Common Supersequence", lc:"1092", gfg:"", cn:""},
+    {id:413, name:"Count Distinct Subsequences", lc:"115", gfg:"", cn:""},
+    {id:414, name:"Edit Distance", lc:"72", gfg:"", cn:""},
+    {id:415, name:"Wildcard Matching", lc:"44", gfg:"", cn:""},
+   ]},
+   {sub:"DP on Stocks", qs:[
+    {id:416, name:"Best Time to Buy & Sell Stock I", lc:"121", gfg:"", cn:""},
+    {id:417, name:"Best Time to Buy & Sell Stock II – Unlimited", lc:"122", gfg:"", cn:""},
+    {id:418, name:"Best Time to Buy & Sell Stock III – Max 2", lc:"123", gfg:"", cn:""},
+    {id:419, name:"Best Time to Buy & Sell Stock IV – Max K", lc:"188", gfg:"", cn:""},
+    {id:420, name:"Buy & Sell Stock with Cooldown", lc:"309", gfg:"", cn:""},
+    {id:421, name:"Buy & Sell Stock with Transaction Fee", lc:"714", gfg:"", cn:""},
+   ]},
+   {sub:"DP on LIS", qs:[
+    {id:422, name:"Longest Increasing Subsequence – LIS", lc:"300", gfg:"", cn:""},
+    {id:423, name:"Print LIS", lc:"", gfg:"print-longest-increasing-subsequence", cn:""},
+    {id:424, name:"LIS Using Binary Search – O(N log N)", lc:"300", gfg:"", cn:""},
+    {id:425, name:"Largest Divisible Subset", lc:"368", gfg:"", cn:""},
+    {id:426, name:"Longest String Chain", lc:"1048", gfg:"", cn:""},
+    {id:427, name:"Longest Bitonic Subsequence", lc:"", gfg:"longest-bitonic-subsequence0824", cn:""},
+    {id:428, name:"Number of LIS", lc:"673", gfg:"", cn:""},
+   ]},
+   {sub:"MCM / Partition DP", qs:[
+    {id:429, name:"Matrix Chain Multiplication", lc:"", gfg:"matrix-chain-multiplication0201", cn:""},
+    {id:430, name:"Minimum Cost to Cut the Stick", lc:"1547", gfg:"", cn:""},
+    {id:431, name:"Burst Balloons", lc:"312", gfg:"", cn:""},
+    {id:432, name:"Palindrome Partitioning II – Minimum Cuts", lc:"132", gfg:"", cn:""},
+    {id:433, name:"Partition Array for Maximum Sum", lc:"1043", gfg:"", cn:""},
+   ]},
+   {sub:"DP on Squares", qs:[
+    {id:434, name:"Maximal Square in Binary Matrix", lc:"221", gfg:"", cn:""},
+    {id:435, name:"Count Square Submatrices with All 1s", lc:"1277", gfg:"", cn:""},
+   ]},
+  ]
+ },
+ {
+  step:17, title:"Tries", icon:"🌐", color:"#f472b6",
+  sections:[
+   {sub:"Theory and Implementation", qs:[
+    {id:436, name:"Implement Trie I – Insert, Search, StartsWith", lc:"208", gfg:"", cn:""},
+    {id:437, name:"Implement Trie II – Count Words Equal / Starting With", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/implement-trie_1387095"},
+   ]},
+   {sub:"Problems", qs:[
+    {id:438, name:"Longest String with All Prefixes – Complete String", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/complete-string_2115860"},
+    {id:439, name:"Number of Distinct Substrings in a String", lc:"", gfg:"", cn:"https://www.naukri.com/code360/problems/number-of-distinct-substrings-in-a-string_985947"},
+    {id:440, name:"Power Set using Trie", lc:"78", gfg:"", cn:""},
+    {id:441, name:"Maximum XOR of Two Numbers in an Array", lc:"421", gfg:"", cn:""},
+    {id:442, name:"Maximum XOR with Element from Array – Queries", lc:"1707", gfg:"", cn:""},
+   ]},
+  ]
+ },
+];
+
+// Difficulty map
+const DIFF_MAP = {
+  // Easy ones
+  1:"Easy",2:"Easy",3:"Easy",4:"Easy",5:"Easy",6:"Easy",7:"Easy",8:"Easy",
+  9:"Pattern",10:"Pattern",11:"Pattern",12:"Pattern",13:"Pattern",14:"Pattern",15:"Pattern",
+  16:"Pattern",17:"Pattern",18:"Pattern",19:"Pattern",20:"Pattern",21:"Pattern",22:"Pattern",
+  23:"Pattern",24:"Pattern",25:"Pattern",26:"Pattern",27:"Pattern",28:"Pattern",29:"Pattern",30:"Pattern",
+  31:"Easy",32:"Easy",33:"Easy",34:"Easy",35:"Easy",36:"Easy",37:"Easy",
+  38:"Easy",39:"Easy",40:"Easy",41:"Easy",42:"Easy",43:"Easy",44:"Easy",
+  45:"Easy",46:"Easy",
+  47:"Easy",48:"Easy",49:"Easy",50:"Medium",51:"Easy",52:"Easy",53:"Medium",
+  54:"Easy",55:"Easy",56:"Easy",57:"Easy",58:"Easy",59:"Easy",60:"Easy",
+  61:"Easy",62:"Easy",63:"Easy",64:"Easy",65:"Easy",66:"Easy",67:"Easy",
+  68:"Medium",69:"Medium",70:"Medium",71:"Medium",72:"Medium",73:"Medium",74:"Medium",
+  75:"Medium",76:"Medium",77:"Medium",78:"Medium",79:"Medium",80:"Medium",81:"Medium",
+  82:"Medium",83:"Medium",84:"Medium",
+  85:"Hard",86:"Hard",87:"Hard",88:"Hard",89:"Hard",90:"Hard",91:"Hard",92:"Hard",
+  93:"Easy",94:"Easy",95:"Easy",96:"Easy",97:"Easy",98:"Easy",99:"Easy",
+  100:"Medium",101:"Medium",102:"Medium",103:"Easy",104:"Medium",105:"Medium",
+  106:"Easy",107:"Medium",108:"Medium",109:"Medium",110:"Medium",111:"Medium",
+  112:"Medium",113:"Medium",114:"Hard",115:"Hard",116:"Hard",117:"Hard",118:"Hard",119:"Easy",
+  120:"Easy",121:"Medium",122:"Medium",123:"Hard",124:"Hard",
+  125:"Easy",126:"Easy",127:"Easy",128:"Easy",129:"Easy",130:"Easy",131:"Easy",
+  132:"Medium",133:"Easy",134:"Medium",135:"Medium",136:"Medium",137:"Medium",138:"Medium",139:"Medium",
+  140:"Easy",141:"Easy",142:"Easy",143:"Easy",144:"Easy",145:"Easy",146:"Easy",147:"Easy",148:"Easy",
+  149:"Easy",150:"Easy",151:"Easy",152:"Medium",153:"Easy",154:"Easy",155:"Medium",156:"Medium",
+  157:"Medium",158:"Medium",159:"Medium",160:"Easy",161:"Medium",162:"Medium",163:"Easy",
+  164:"Medium",165:"Medium",166:"Easy",167:"Hard",168:"Medium",169:"Hard",170:"Medium",
+  171:"Medium",172:"Medium",173:"Medium",174:"Medium",175:"Medium",
+  176:"Medium",177:"Medium",178:"Medium",179:"Medium",180:"Medium",181:"Medium",182:"Medium",
+  183:"Medium",184:"Medium",185:"Medium",186:"Medium",
+  187:"Medium",188:"Medium",189:"Hard",190:"Medium",191:"Medium",192:"Medium",193:"Hard",194:"Hard",
+  195:"Easy",196:"Easy",197:"Easy",198:"Easy",199:"Easy",200:"Easy",201:"Easy",
+  202:"Medium",203:"Easy",204:"Medium",205:"Medium",206:"Medium",207:"Easy",208:"Medium",
+  209:"Easy",210:"Easy",211:"Medium",212:"Medium",
+  213:"Easy",214:"Easy",215:"Easy",216:"Easy",217:"Easy",218:"Easy",219:"Easy",220:"Medium",
+  221:"Medium",222:"Medium",223:"Medium",224:"Medium",225:"Medium",226:"Medium",
+  227:"Easy",228:"Medium",229:"Medium",230:"Hard",231:"Medium",232:"Medium",233:"Medium",
+  234:"Medium",235:"Hard",236:"Hard",237:"Hard",238:"Medium",239:"Medium",240:"Hard",241:"Hard",
+  242:"Easy",243:"Medium",244:"Medium",245:"Medium",246:"Medium",247:"Medium",248:"Medium",249:"Medium",250:"Medium",
+  251:"Hard",252:"Hard",253:"Hard",254:"Hard",
+  255:"Easy",256:"Medium",257:"Medium",258:"Easy",259:"Hard",
+  260:"Easy",261:"Medium",262:"Hard",263:"Medium",264:"Medium",265:"Medium",
+  266:"Hard",267:"Medium",268:"Medium",269:"Medium",
+  270:"Easy",271:"Medium",272:"Easy",273:"Easy",274:"Medium",
+  275:"Easy",276:"Medium",277:"Medium",278:"Medium",279:"Medium",280:"Hard",281:"Medium",282:"Medium",283:"Medium",284:"Medium",285:"Medium",
+  286:"Easy",287:"Easy",288:"Easy",289:"Medium",290:"Medium",291:"Hard",292:"Easy",
+  293:"Easy",294:"Easy",295:"Hard",296:"Easy",297:"Medium",
+  298:"Medium",299:"Hard",300:"Medium",301:"Medium",302:"Medium",303:"Easy",304:"Medium",
+  305:"Medium",306:"Medium",307:"Medium",308:"Hard",309:"Medium",310:"Medium",
+  311:"Medium",312:"Medium",313:"Hard",314:"Medium",315:"Medium",316:"Medium",
+  317:"Easy",318:"Easy",319:"Medium",320:"Medium",321:"Medium",322:"Medium",323:"Medium",
+  324:"Medium",325:"Medium",326:"Medium",327:"Medium",328:"Medium",329:"Medium",330:"Easy",331:"Hard",332:"Hard",
+  333:"Theory",334:"Easy",335:"Easy",336:"Medium",337:"Medium",338:"Easy",339:"Medium",
+  340:"Medium",341:"Medium",342:"Medium",343:"Medium",344:"Medium",345:"Hard",346:"Hard",
+  347:"Medium",348:"Medium",349:"Medium",
+  350:"Medium",351:"Medium",352:"Medium",353:"Medium",354:"Medium",355:"Medium",356:"Hard",
+  357:"Easy",358:"Medium",359:"Medium",360:"Medium",361:"Medium",362:"Medium",363:"Medium",
+  364:"Medium",365:"Medium",366:"Medium",367:"Medium",368:"Medium",
+  369:"Medium",370:"Medium",371:"Medium",372:"Medium",373:"Medium",374:"Medium",375:"Hard",376:"Hard",377:"Hard",
+  378:"Hard",379:"Hard",380:"Hard",
+  381:"Theory",382:"Easy",383:"Easy",384:"Medium",385:"Medium",386:"Medium",387:"Medium",
+  388:"Medium",389:"Medium",390:"Medium",391:"Medium",392:"Medium",393:"Hard",394:"Hard",
+  395:"Medium",396:"Medium",397:"Medium",398:"Medium",399:"Medium",400:"Medium",401:"Medium",
+  402:"Medium",403:"Medium",404:"Medium",405:"Medium",
+  406:"Medium",407:"Medium",408:"Medium",409:"Medium",410:"Medium",411:"Medium",412:"Medium",
+  413:"Hard",414:"Hard",415:"Hard",
+  416:"Easy",417:"Medium",418:"Hard",419:"Hard",420:"Medium",421:"Medium",
+  422:"Medium",423:"Medium",424:"Medium",425:"Medium",426:"Medium",427:"Medium",428:"Medium",
+  429:"Hard",430:"Hard",431:"Hard",432:"Hard",433:"Medium",
+  434:"Medium",435:"Medium",
+  436:"Medium",437:"Medium",438:"Medium",439:"Medium",440:"Medium",441:"Medium",442:"Hard",
+};
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+const SK = 'striver_a2z_html_v1';
+let done = new Set(JSON.parse(localStorage.getItem(SK) || '[]'));
+let currentStep = null;
+let filterDiff = 'All';
+let filterPlat = 'All';
+let filterUndone = false;
+
+const totalQ = STEPS.reduce((a,s)=>a+s.sections.reduce((b,sec)=>b+sec.qs.length,0),0);
+
+function saveDone() { localStorage.setItem(SK, JSON.stringify([...done])); }
+
+function toggle(id, el) {
+  if (done.has(id)) done.delete(id); else done.add(id);
+  saveDone();
+  updateAll();
+  const row = document.getElementById('qrow-'+id);
+  if (row) row.classList.toggle('done', done.has(id));
+  const cb = document.getElementById('cb-'+id);
+  if (cb) cb.checked = done.has(id);
+}
+
+// ─────────────────────────────────────────────
+// PROGRESS
+// ─────────────────────────────────────────────
+function updateAll() {
+  const n = done.size, pct = Math.round(n/totalQ*100);
+  document.getElementById('top-prog-fill').style.width = pct+'%';
+  document.getElementById('top-pct').textContent = pct+'%';
+  document.getElementById('top-count').textContent = n+'/'+totalQ;
+  document.getElementById('s-solved').textContent = n;
+  document.getElementById('s-remain').textContent = totalQ - n;
+  document.getElementById('s-total').textContent = totalQ;
+  const stepsDone = STEPS.filter(s=>s.sections.reduce((a,sec)=>a+sec.qs.filter(q=>done.has(q.id)).length,0)===s.sections.reduce((a,sec)=>a+sec.qs.length,0)).length;
+  document.getElementById('s-steps').textContent = stepsDone+'/17';
+  const bb = document.getElementById('bottom-bar');
+  if (n > 0) {
+    bb.classList.add('visible');
+    document.getElementById('bb-fill').style.width = pct+'%';
+    document.getElementById('bb-frac').textContent = n+'/'+totalQ;
+    document.getElementById('bb-pct').textContent = pct+'%';
+  } else { bb.classList.remove('visible'); }
+  // update step cards
+  STEPS.forEach(s => {
+    const card = document.getElementById('sc-'+s.step);
+    if (!card) return;
+    const tot = s.sections.reduce((a,sec)=>a+sec.qs.length,0);
+    const comp = s.sections.reduce((a,sec)=>a+sec.qs.filter(q=>done.has(q.id)).length,0);
+    const p = Math.round(comp/tot*100);
+    const fill = card.querySelector('.sc-bar-fill');
+    if (fill) fill.style.width = p+'%';
+    const pctEl = card.querySelector('.sc-pct');
+    if (pctEl) pctEl.textContent = p+'%';
+    const numsEl = card.querySelector('.sc-prog-nums');
+    if (numsEl) numsEl.textContent = comp+' / '+tot;
+    if (comp===tot) { card.classList.add('complete'); const t=card.querySelector('.sc-trophy'); if(t)t.textContent='🏆'; }
+    else { card.classList.remove('complete'); const t=card.querySelector('.sc-trophy'); if(t)t.textContent=''; }
+  });
+  // update step header bar if in step view
+  if (currentStep) {
+    const s = STEPS.find(x=>x.step===currentStep);
+    if (s) {
+      const tot = s.sections.reduce((a,sec)=>a+sec.qs.length,0);
+      const comp = s.sections.reduce((a,sec)=>a+sec.qs.filter(q=>done.has(q.id)).length,0);
+      const p = Math.round(comp/tot*100);
+      const shf = document.querySelector('.sh-bar-fill');
+      if (shf) { shf.style.width=p+'%'; }
+      const spc = document.querySelector('.sh-pct');
+      if (spc) { spc.textContent=p+'%'; spc.style.color=s.color; }
+      const shc = document.querySelector('.sh-count');
+      if (shc) shc.textContent=comp+'/'+tot+' completed';
+    }
+  }
+  // reset btn
+  document.getElementById('reset-btn').classList.toggle('visible', n>0);
+}
+
+// ─────────────────────────────────────────────
+// LINK BUILDER
+// ─────────────────────────────────────────────
+function buildLink(q) {
+  const links = [];
+  if (q.lc) links.push(`<a class="q-link lc" href="https://leetcode.com/problems/${isNaN(q.lc)?q.lc:lcSlug(q.lc)}/" target="_blank">LC ↗</a>`);
+  if (q.gfg) links.push(`<a class="q-link gfg" href="https://www.geeksforgeeks.org/problems/${q.gfg}/" target="_blank">GFG ↗</a>`);
+  if (q.cn) links.push(`<a class="q-link cn" href="${q.cn}" target="_blank">CN ↗</a>`);
+  return links.join('');
+}
+
+const LC_SLUGS = {
+  9:"palindrome-number",14:"longest-common-prefix",15:"3sum",17:"letter-combinations-of-a-phone-number",
+  18:"4sum",19:"remove-nth-node-from-end-of-list",20:"valid-parentheses",21:"merge-two-sorted-lists",
+  22:"generate-parentheses",23:"merge-k-sorted-lists",25:"reverse-nodes-in-k-group",26:"remove-duplicates-from-sorted-array",
+  29:"divide-two-integers",31:"next-permutation",33:"search-in-rotated-sorted-array",34:"find-first-and-last-position-of-element-in-sorted-array",
+  35:"search-insert-position",37:"sudoku-solver",39:"combination-sum",40:"combination-sum-ii",
+  42:"trapping-rain-water",44:"wildcard-matching",45:"jump-game-ii",48:"rotate-image",
+  50:"powx-n",51:"n-queens",53:"maximum-subarray",54:"spiral-matrix",
+  55:"jump-game",56:"merge-intervals",57:"insert-interval",62:"unique-paths",
+  63:"unique-paths-ii",64:"minimum-path-sum",69:"sqrtx",70:"climbing-stairs",
+  72:"edit-distance",73:"set-matrix-zeroes",74:"search-a-2d-matrix",75:"sort-colors",
+  76:"minimum-window-substring",78:"subsets",79:"word-search",81:"search-in-rotated-sorted-array-ii",
+  84:"largest-rectangle-in-histogram",85:"maximal-rectangle",88:"merge-sorted-array",90:"subsets-ii",
+  94:"binary-tree-inorder-traversal",98:"validate-binary-search-tree",99:"recover-binary-search-tree",100:"same-tree",
+  101:"symmetric-tree",102:"binary-tree-level-order-traversal",103:"binary-tree-zigzag-level-order-traversal",104:"maximum-depth-of-binary-tree",
+  105:"construct-binary-tree-from-preorder-and-inorder-traversal",106:"construct-binary-tree-from-inorder-and-postorder-traversal",
+  110:"balanced-binary-tree",114:"flatten-binary-tree-to-linked-list",115:"distinct-subsequences",118:"pascals-triangle",
+  120:"triangle",121:"best-time-to-buy-and-sell-stock",122:"best-time-to-buy-and-sell-stock-ii",123:"best-time-to-buy-and-sell-stock-iii",
+  124:"binary-tree-maximum-path-sum",125:"valid-palindrome",126:"word-ladder-ii",127:"word-ladder",
+  128:"longest-consecutive-sequence",130:"surrounded-regions",131:"palindrome-partitioning",132:"palindrome-partitioning-ii",
+  135:"candy",136:"single-number",137:"single-number-ii",138:"copy-list-with-random-pointer",
+  139:"word-break",141:"linked-list-cycle",142:"linked-list-cycle-ii",143:"reorder-list",
+  144:"binary-tree-preorder-traversal",145:"binary-tree-postorder-traversal",146:"lru-cache",148:"sort-list",
+  152:"maximum-product-subarray",153:"find-minimum-in-rotated-sorted-array",155:"min-stack",160:"intersection-of-two-linked-lists",
+  162:"find-peak-element",169:"majority-element",173:"binary-search-tree-iterator",188:"best-time-to-buy-and-sell-stock-iv",
+  189:"rotate-array",190:"reverse-bits",191:"number-of-1-bits",198:"house-robber",
+  199:"binary-tree-right-side-view",200:"number-of-islands",204:"count-primes",205:"isomorphic-strings",
+  206:"reverse-linked-list",207:"course-schedule",208:"implement-trie-prefix-tree",210:"course-schedule-ii",
+  213:"house-robber-ii",215:"kth-largest-element-in-an-array",216:"combination-sum-iii",221:"maximal-square",
+  222:"count-complete-tree-nodes",225:"implement-stack-using-queues",229:"majority-element-ii",230:"kth-smallest-element-in-a-bst",
+  231:"power-of-two",232:"implement-queue-using-stacks",234:"palindrome-linked-list",235:"lowest-common-ancestor-of-a-binary-search-tree",
+  236:"lowest-common-ancestor-of-a-binary-tree",237:"delete-node-in-a-linked-list",239:"sliding-window-maximum",240:"search-a-2d-matrix-ii",
+  242:"valid-anagram",260:"single-number-iii",268:"missing-number",269:"alien-dictionary",
+  277:"find-the-celebrity",282:"expression-add-operators",283:"move-zeroes",285:"inorder-successor-in-bst",
+  295:"find-median-from-data-stream",297:"serialize-and-deserialize-binary-tree",300:"longest-increasing-subsequence",305:"number-of-islands-ii",
+  309:"best-time-to-buy-and-sell-stock-with-cooldown",312:"burst-balloons",322:"coin-change",328:"odd-even-linked-list",
+  340:"longest-substring-with-at-most-k-distinct-characters",347:"top-k-frequent-elements",355:"design-twitter",
+  368:"largest-divisible-subset",402:"remove-k-digits",410:"split-array-largest-sum",416:"partition-equal-subset-sum",
+  421:"maximum-xor-of-two-numbers-in-an-array",424:"longest-repeating-character-replacement",435:"non-overlapping-intervals",
+  450:"delete-node-in-a-bst",451:"sort-characters-by-frequency",455:"assign-cookies",460:"lfu-cache",
+  462:"minimum-moves-to-equal-array-elements-ii",485:"max-consecutive-ones",493:"reverse-pairs",
+  494:"target-sum",496:"next-greater-element-i",503:"next-greater-element-ii",509:"fibonacci-number",
+  516:"longest-palindromic-subsequence",518:"coin-change-ii",540:"single-element-in-a-sorted-array",
+  543:"diameter-of-binary-tree",547:"number-of-provinces",560:"subarray-sum-equals-k",
+  583:"delete-operation-for-two-strings",621:"task-scheduler",653:"two-sum-iv-input-is-a-bst",
+  662:"maximum-width-of-binary-tree",673:"number-of-longest-increasing-subsequence",678:"valid-parenthesis-string",
+  700:"search-in-a-binary-search-tree",701:"insert-into-a-binary-search-tree",703:"kth-largest-element-in-a-stream",
+    704:"binary-search",707:"design-linked-list",714:"best-time-to-buy-and-sell-stock-with-transaction-fee",
+  721:"accounts-merge",727:"minimum-window-subsequence",733:"flood-fill",735:"asteroid-collision",
+  774:"minimize-max-distance-to-gas-station",778:"swim-in-rising-water",785:"is-graph-bipartite",787:"cheapest-flights-within-k-stops",
+  802:"find-eventual-safe-states",827:"making-a-large-island",
+  843:"guess-the-word",846:"hand-of-straights",860:"lemonade-change",863:"all-nodes-distance-k-in-binary-tree",
+  875:"koko-eating-bananas",904:"fruit-into-baskets",907:"sum-of-subarray-minimums",
+  930:"binary-subarrays-with-sum",931:"minimum-falling-path-sum",947:"most-stones-removed-with-same-row-or-column",
+  987:"vertical-order-traversal-of-a-binary-tree",992:"subarrays-with-k-different-integers",
+  994:"rotting-oranges",1004:"max-consecutive-ones-iii",1008:"construct-binary-search-tree-from-preorder-traversal",
+  1011:"capacity-to-ship-packages-within-d-days",1020:"number-of-enclaves",1021:"remove-outermost-parentheses",
+  1043:"partition-array-for-maximum-sum",1048:"longest-string-chain",1092:"shortest-common-supersequence",
+  1143:"longest-common-subsequence",1192:"critical-connections-in-a-network",1248:"count-number-of-nice-subarrays",
+  1277:"count-square-submatrices-with-all-ones",1283:"find-the-smallest-divisor-given-a-threshold",
+  1312:"minimum-insertion-steps-to-make-a-string-palindrome",1319:"number-of-operations-to-make-network-connected",
+  1334:"find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance",
+  1358:"number-of-substrings-containing-all-three-characters",1383:"maximum-performance-of-a-team",
+  1423:"maximum-points-you-can-obtain-from-cards",1463:"cherry-pickup-ii",1482:"minimum-number-of-days-to-make-m-bouquets",
+  1539:"kth-missing-positive-number",1547:"minimum-cost-to-cut-a-stick",1568:"minimum-number-of-days-to-disconnect-island",
+  1614:"maximum-nesting-depth-of-the-parentheses",1631:"path-with-minimum-effort",1664:"ways-to-make-a-fair-array",
+  1707:"maximum-xor-with-an-element-from-array",1752:"check-if-array-is-sorted-and-rotated",
+  1781:"sum-of-beauty-of-all-substrings",1901:"find-a-peak-element-ii",1903:"largest-odd-number-in-a-string",
+  1922:"count-good-numbers",1976:"number-of-ways-to-arrive-at-destination",2:"add-two-numbers",
+  2095:"delete-the-middle-node-of-a-linked-list",2104:"range-sum-of-sorted-subarray-sums",
+  2149:"rearrange-array-elements-by-sign",5:"longest-palindromic-substring",
+  8:"string-to-integer-atoi",13:"roman-to-integer",4:"median-of-two-sorted-arrays",
+};
+
+function lcSlug(id) {
+  const n = parseInt(id);
+  return LC_SLUGS[n] || id;
+}
+
+// ─────────────────────────────────────────────
+// RENDER STEP GRID
+// ─────────────────────────────────────────────
+function renderGrid() {
+  const grid = document.getElementById('step-grid');
+  grid.innerHTML = STEPS.map(s => {
+    const tot = s.sections.reduce((a,sec)=>a+sec.qs.length,0);
+    const comp = s.sections.reduce((a,sec)=>a+sec.qs.filter(q=>done.has(q.id)).length,0);
+    const pct = Math.round(comp/tot*100);
+    const tags = s.sections.slice(0,4).map(sec=>`<span class="sc-tag">${sec.sub}</span>`).join('');
+    return `<div class="step-card${pct===100?' complete':''}" id="sc-${s.step}" style="--step-color:${s.color}" onclick="showStep(${s.step})">
+      <div class="sc-head">
+        <div class="sc-icon">${s.icon}</div>
+        <div class="sc-meta">
+          <div class="sc-stepnum">STEP ${s.step}</div>
+          <div class="sc-title">${s.title}</div>
+        </div>
+        <div class="sc-trophy">${pct===100?'🏆':''}</div>
+      </div>
+      <div class="sc-prog-row">
+        <span class="sc-prog-nums">${comp} / ${tot}</span>
+        <span class="sc-pct" style="color:${s.color}">${pct}%</span>
+      </div>
+      <div class="sc-bar"><div class="sc-bar-fill" style="width:${pct}%;background:${s.color}"></div></div>
+      <div class="sc-tags">${tags}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+// SHOW STEP
+// ─────────────────────────────────────────────
+function showStep(stepNum) {
+  currentStep = stepNum;
+  const s = STEPS.find(x=>x.step===stepNum);
+  const tot = s.sections.reduce((a,sec)=>a+sec.qs.length,0);
+  const comp = s.sections.reduce((a,sec)=>a+sec.qs.filter(q=>done.has(q.id)).length,0);
+  const pct = Math.round(comp/tot*100);
+
+  document.getElementById('step-grid').style.display = 'none';
+  document.getElementById('stats-row').style.display = 'none';
+  document.getElementById('step-detail').style.display = 'block';
+  document.getElementById('search-results').classList.remove('visible');
+  document.getElementById('back-btn').style.display = 'flex';
+  document.getElementById('header-title').textContent = `Step ${s.step}: ${s.title}`;
+  document.getElementById('header-sub').textContent = `${comp}/${tot} questions`;
+
+  const sections = s.sections.map((sec, si) => {
+    const secDone = sec.qs.filter(q=>done.has(q.id)).length;
+    const sp = Math.round(secDone/sec.qs.length*100);
+    const rows = sec.qs.map((q,qi) => {
+      const diff = q.diff || DIFF_MAP[q.id] || 'Medium';
+      const isDone = done.has(q.id);
+      return `<tr class="q-row${isDone?' done':''}" id="qrow-${q.id}" onclick="toggle(${q.id})">
+        <td class="q-check"><input type="checkbox" id="cb-${q.id}" ${isDone?'checked':''} onclick="event.stopPropagation();" onchange="toggle(${q.id})"/></td>
+        <td class="q-num">${qi+1}</td>
+        <td><span class="q-name">${q.name}</span></td>
+        <td>${buildLink(q)}</td>
+        <td><span class="diff-chip diff-${diff}"><span class="diff-dot"></span>${diff}</span></td>
+      </tr>`;
+    }).join('');
+    return `<div class="section-block">
+      <div class="section-head${si===0?' open':''}" onclick="toggleSec(this)">
+        <div class="sh-left">
+          <span class="sh-arrow${si===0?' open':''}">▶</span>
+          <span class="sec-name">${sec.sub}</span>
+          <span class="sec-count-badge">${sec.qs.length}</span>
+        </div>
+        <div class="sh-right">
+          <span class="sec-done-label${secDone===sec.qs.length?' all':''}">${secDone}/${sec.qs.length}</span>
+          <div class="sec-mini-bar"><div class="sec-mini-fill" style="width:${sp}%;background:${s.color}"></div></div>
+        </div>
+      </div>
+      <div class="sec-body" style="display:${si===0?'block':'none'}">
+        <table class="q-table">
+          <thead><tr>
+            <th class="center" style="width:38px">✓</th>
+            <th style="width:36px">#</th>
+            <th>Question</th>
+            <th style="width:140px">Links</th>
+            <th style="width:96px">Difficulty</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('step-detail').innerHTML = `
+    <div class="step-header" style="--step-color:${s.color}">
+      <div class="sh-icon">${s.icon}</div>
+      <div class="sh-info">
+        <div class="sh-title">Step ${s.step} — ${s.title}</div>
+        <div class="sh-sub">
+          <span class="sh-count">${comp}/${tot} completed</span>
+          <div class="sh-bar-wrap"><div class="sh-bar-fill" style="width:${pct}%;background:${s.color}"></div></div>
+          <span class="sh-pct" style="color:${s.color}">${pct}%</span>
+        </div>
+      </div>
+      ${pct===100?'<span style="font-size:24px">🏆</span>':''}
+    </div>
+    ${sections}
+  `;
+}
+
+function toggleSec(header) {
+  const body = header.nextElementSibling;
+  const arrow = header.querySelector('.sh-arrow');
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  header.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+}
+
+function showGrid() {
+  currentStep = null;
+  document.getElementById('step-grid').style.display = 'grid';
+  document.getElementById('stats-row').style.display = 'grid';
+  document.getElementById('step-detail').style.display = 'none';
+  document.getElementById('step-detail').innerHTML = '';
+  document.getElementById('back-btn').style.display = 'none';
+  document.getElementById('header-title').textContent = "Striver's A2Z DSA";
+  document.getElementById('header-sub').textContent = '450+ questions · 17 steps';
+  handleSearch();
+}
+
+// ─────────────────────────────────────────────
+// SEARCH / FILTER
+// ─────────────────────────────────────────────
+function handleSearch() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  const isFiltered = q || filterDiff !== 'All' || filterPlat !== 'All' || filterUndone;
+
+  if (!isFiltered) {
+    document.getElementById('search-results').classList.remove('visible');
+    if (!currentStep) {
+      document.getElementById('step-grid').style.display = 'grid';
+      document.getElementById('stats-row').style.display = 'grid';
+    }
+    return;
+  }
+
+  if (!currentStep) {
+    document.getElementById('step-grid').style.display = 'none';
+    document.getElementById('stats-row').style.display = 'none';
+  }
+
+  const allQ = STEPS.flatMap(s=>s.sections.flatMap(sec=>sec.qs.map(x=>({...x,stepId:s.step,stepTitle:s.title,stepColor:s.color,diff:x.diff||DIFF_MAP[x.id]||'Medium'}))));
+  const filtered = allQ.filter(x => {
+    if (q && !x.name.toLowerCase().includes(q)) return false;
+    if (filterDiff !== 'All' && x.diff !== filterDiff) return false;
+    if (filterPlat !== 'All') {
+      const has = (filterPlat==='LeetCode'&&x.lc)||(filterPlat==='GFG'&&x.gfg)||(filterPlat==='CN'&&x.cn);
+      if (!has) return false;
+    }
+    if (filterUndone && done.has(x.id)) return false;
+    return true;
+  });
+
+  document.getElementById('sr-header').innerHTML = `Found <strong>${filtered.length}</strong> question${filtered.length!==1?'s':''}`;
+
+  if (filtered.length === 0) {
+    document.getElementById('sr-table-wrap').innerHTML = '<div class="sr-empty">No questions match your filters.</div>';
+  } else {
+    const rows = filtered.map((x,i) => {
+      const isDone = done.has(x.id);
+      return `<tr class="q-row${isDone?' done':''}" id="qrow-${x.id}" onclick="toggle(${x.id})">
+        <td class="q-check"><input type="checkbox" id="cb-${x.id}" ${isDone?'checked':''} onclick="event.stopPropagation();" onchange="toggle(${x.id})"/></td>
+        <td class="q-num">${i+1}</td>
+        <td><span class="q-name">${x.name}</span><br><span style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace">Step ${x.stepId} · ${x.stepTitle}</span></td>
+        <td>${buildLink(x)}</td>
+        <td><span class="diff-chip diff-${x.diff}"><span class="diff-dot"></span>${x.diff}</span></td>
+      </tr>`;
+    }).join('');
+    document.getElementById('sr-table-wrap').innerHTML = `
+      <table class="q-table">
+        <thead><tr>
+          <th class="center" style="width:38px">✓</th>
+          <th style="width:36px">#</th>
+          <th>Question</th>
+          <th style="width:140px">Links</th>
+          <th style="width:96px">Difficulty</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+  document.getElementById('search-results').classList.add('visible');
+}
+
+function setDiff(btn, val) {
+  filterDiff = val;
+  document.querySelectorAll('#diff-filters .fbtn').forEach(b => {
+    b.className = 'fbtn';
+    if (b.dataset.diff === val) b.className = 'fbtn active-'+val.toLowerCase();
+  });
+  handleSearch();
+}
+function setPlat(btn, val) {
+  filterPlat = val;
+  document.querySelectorAll('#plat-filters .fbtn').forEach(b => {
+    b.className = 'fbtn';
+    if (b.dataset.plat === val) {
+      b.className = 'fbtn ' + (val==='All'?'active-plat-all':val==='LeetCode'?'active-lc':val==='GFG'?'active-gfg':'active-cn');
+    }
+  });
+  handleSearch();
+}
+function toggleUndone() {
+  filterUndone = !filterUndone;
+  document.getElementById('undone-btn').classList.toggle('active-undone', filterUndone);
+  handleSearch();
+}
+function resetAll() {
+  if (!confirm('Reset all progress?')) return;
+  done.clear(); saveDone(); updateAll();
+  document.querySelectorAll('.q-row.done').forEach(r=>r.classList.remove('done'));
+  document.querySelectorAll('input[type=checkbox]').forEach(c=>c.checked=false);
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+renderGrid();
+updateAll();
+</script>
+</body>
+</html>
